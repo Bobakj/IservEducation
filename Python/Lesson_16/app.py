@@ -1,6 +1,8 @@
 # Класс приложения
 from tkinter import messagebox
 from tkinter import *
+from function import hasdigit
+from user import User
 
 
 class App:
@@ -13,6 +15,7 @@ class App:
         self.__x = (self.__screen_widght // 2) - (self.__width_window // 2)
         self.__y = (self.__screen_height // 2) - (self.__height_window // 2)
         self._name_app = "Мой банк"
+        self.users = {}
     
     def clear_form(self):
         for widget in self.__window.winfo_children():
@@ -20,7 +23,8 @@ class App:
     
     def start_form(self):
         self.clear_form()
-        authorization_but = Button(self.__window, text="Авторизация", width=20, font=("Arial", 16))
+        authorization_but = Button(self.__window, text="Авторизация", width=20, font=("Arial", 16),
+                                   command=self.registration_form)
         authorization_but.place(anchor="center", relx=0.5, rely=0.4)
 
         registration_but = Button(self.__window, text="Регистрация", width=20, font=("Arial", 16),
@@ -49,7 +53,12 @@ class App:
         repeat_password = Entry(self.__window, width=20, font=("Arial", 16))
         repeat_password.place(anchor="center", relx=0.5, rely=0.75)
 
-        registration_complite = Button(self.__window, text="Регистрация", width=15, font=("Arial", 16))
+        registration_complite = Button(self.__window, text="Регистрация", width=15, font=("Arial", 16),
+                                       command=lambda: self.registartion(name.get(),
+                                                                         phone.get(),
+                                                                         password.get(),
+                                                                         repeat_password.get()
+                                       ))
         registration_complite.place(anchor="center", relx=0.5, rely=0.90)
 
     def start(self):
@@ -67,22 +76,74 @@ class App:
             message_title = "Ошибка валидации"
             message_info = "Одно или несколько полей не заплонены!"
             messagebox.showinfo(message_title, message_info)
+            return False
         
         elif not name.isalpha():
             message_title = "Ошибка валидации"
             message_info = "Имя должно состоять из буквенных символов!"
             messagebox.showinfo(message_title, message_info)
+            return False
         
         elif not phone.isdigit():
             message_title = "Ошибка валидации"
             message_info = "Номер телефона должен состоять только из цифр!"
             messagebox.showinfo(message_title, message_info)
+            return False
         
         elif password != repeat_password:
             message_title = "Ошибка валидации"
             message_info = "Пароли не совпадают!"
             messagebox.showinfo(message_title, message_info)
+            return False
         
+        elif len(password) < 8:
+            message_title = "Ошибка валидации!"
+            message_info = "Пароль должен состоять из не менее 8 символов"
+            messagebox.showinfo(message_title, message_info)
+            return False
+        
+        elif password == password.upper() or password == password.lower():
+            message_title = "Ошибка валидации!"
+            message_info = "Пароль должен содержать строчные и заглавные буквы"
+            messagebox.showinfo(message_title, message_info)
+            return False
+        
+        elif not hasdigit(password):
+            message_title = "Ошибка валидации!"
+            message_info = "Пароль должен содержать цифры!"
+            messagebox.showinfo(message_title, message_info)
+            return False
+        return True
+    def registartion(self, name, phone, password, repeat_password):
+        if self.valid_info(name, phone, password, repeat_password):
+            new_user = User(name, phone, password)
+            self.users[phone] = new_user
+            message_title = "Успех"
+            message_info = "Новый пользователь был создан!"
+            messagebox.showinfo(message_title, message_info)
+            self.start_form()
+
+    def authorization_form(self):
+        self.clear_form()
+        phone_label = Label(self.__window, text="Номер телефона", font=("Arial", 16))
+        phone_label.place(anchor="center", relx=0.5, rely=0.25)
+        phone = Entry(self.__window, width=20, font=("Arial", 16))
+        phone.place(anchor="center", relx=0.5, rely=0.35)
+
+        password_label = Label(self.__window, text="Пароль", font=("Arial", 16))
+        password_label.place(anchor="center", relx=0.5, rely=0.45)
+        password = Entry(self.__window, width=20, font=("Arial", 16))
+        password.place(anchor="center", relx=0.5, rely=0.55)
+
+        authorization_complite = Button(self.__window, text="Авторизироваться", width=15, font=("Arial", 16))                            
+        authorization_complite.place(anchor="center", relx=0.5, rely=0.7)
+
+        name_label = Label(self.__window, text="Нет аккаунта", font=("Arial", 12))
+        name_label.place(anchor="center", relx=0.5, rely=0.8)
+        
+        registration_button = Button(self.__window, text="Авторизироваться", width=15, font=("Arial", 16),
+                                     command=self.registration_form)                            
+        registration_button.place(anchor="center", relx=0.5, rely=0.9)
         
 
 
